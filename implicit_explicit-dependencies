@@ -1,0 +1,54 @@
+what is Explicit(స్పష్టమైన) dependencies & Implicit(నేరుగా వ్యక్తం చేయలేదు సూచించారు. ) dependencies in Terraform
+
+In Terraform, **explicit** and **implicit** dependencies are two ways to control the **order of resource creation**. Here's a clear breakdown:
+
+---
+
+### ✅ **Implicit Dependencies**
+Terraform automatically guess dependencies when **one resource references another**.
+
+#### Example:
+```hcl
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "subnet1" {
+  vpc_id     = aws_vpc.main.id  # <-- Implicit dependency
+  cidr_block = "10.0.1.0/24"
+}
+```
+
+- Here, `aws_subnet.subnet1` **implicitly depends** on `aws_vpc.main` because it uses its `id`.
+- Terraform will **automatically** create the VPC before the subnet.
+
+---
+
+### ✅ **Explicit Dependencies**
+Use the `depends_on` argument to **manually specify** that one resource depends on another, even if there's no direct reference.
+
+#### Example:
+```hcl
+resource "null_resource" "setup" {
+  # some setup script
+}
+
+resource "null_resource" "app" {
+  depends_on = [null_resource.setup]  # <-- Explicit dependency
+}
+```
+
+- This is useful when the dependency is **not obvious** from the code (e.g., shell scripts, external systems, or modules).
+
+---
+
+### 🔍 When to Use Each
+
+| Type              | Use When...                                                                 |
+|-------------------|------------------------------------------------------------------------------|
+| **Implicit**       | Resources naturally reference each other (e.g., IDs, outputs).              |
+| **Explicit**       | You need to enforce order without a direct reference (e.g., modules, scripts). |
+
+---
+
+Would you like a visual diagram or a real-world example using AWS, Azure, or GCP resources?
