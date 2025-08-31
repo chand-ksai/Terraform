@@ -4,6 +4,18 @@ A reusable Terraform module for creating a **cross-account IAM role**. It’s de
 
 ### 📦 Module Structure
 
+modules/
+└── cross_account_role/
+    ├── main.tf          # Core resources: IAM role, trust policy, attachments
+    ├── variables.tf     # Input variables for role name, policies, tags, etc.
+    └── outputs.tf       # Outputs like role ARN
+
+root/
+├── main.tf              # Module instantiation and other resources
+├── variables.tf         # Root-level variables (e.g., account IDs, environment)
+└── terraform.tfvars     # Variable values for a specific environment
+
+
 Let’s say your module lives in `modules/cross_account_role/`. It includes:
 
 #### `main.tf`
