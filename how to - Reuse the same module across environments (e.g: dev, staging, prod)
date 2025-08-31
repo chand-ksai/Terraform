@@ -1,0 +1,99 @@
+Reusing modules across environments lets you maintain consistency while customizing behavior per environment. 
+Here's how you can structure it:
+
+---
+
+### 🗂️ Folder Structure Example
+
+```
+terraform/
+├── modules/
+│   └── cross_account_role/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+├── envs/
+│   ├── dev/
+│   │   └── main.tf
+│   ├── staging/
+│   │   └── main.tf
+│   └── prod/
+│       └── main.tf
+```
+
+---
+
+### 📦 Module (Already Defined)
+
+Your `modules/cross_account_role/` contains the reusable logic for creating IAM roles.
+
+---
+
+### 🧪 Dev Environment Example (`envs/dev/main.tf`)
+
+```hcl
+module "cross_account_role" {
+  source               = "../../modules/cross_account_role"
+  role_name            = "dev-ci-cd-role"
+  trusted_principal_arn = "arn:aws:iam::111111111111:role/dev-github-runner"
+  policy_arns          = [
+    "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  ]
+  tags = {
+    Environment = "dev"
+    Owner       = "devops-team"
+  }
+}
+```
+
+---
+
+### 🚧 Staging Environment Example (`envs/staging/main.tf`)
+
+```hcl
+module "cross_account_role" {
+  source               = "../../modules/cross_account_role"
+  role_name            = "staging-ci-cd-role"
+  trusted_principal_arn = "arn:aws:iam::222222222222:role/staging-github-runner"
+  policy_arns          = [
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ]
+  tags = {
+    Environment = "staging"
+    Owner       = "devops-team"
+  }
+}
+```
+
+---
+
+### 🏭 Prod Environment Example (`envs/prod/main.tf`)
+
+```hcl
+module "cross_account_role" {
+  source               = "../../modules/cross_account_role"
+  role_name            = "prod-ci-cd-role"
+  trusted_principal_arn = "arn:aws:iam::333333333333:role/prod-github-runner"
+  policy_arns          = [
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+    "arn:aws:iam::aws:policy/AWSCodeDeployFullAccess"
+  ]
+  tags = {
+    Environment = "prod"
+    Owner       = "security-team"
+  }
+}
+```
+
+---
+
+### ✅ Benefits
+
+- 🔁 **Reusability**: One module, many environments.
+- 🔒 **Security**: Different trust relationships and permissions per stage.
+- 🧩 **Modularity**: Easy to plug into CI/CD pipelines or Terraform workspaces.
+- 📊 **Tagging**: Environment-specific metadata for cost and access tracking.
+
+---
+
+Want to take this further with remote state separation or workspace-based deployments? I can show you how to isolate state files and automate environment provisioning.
