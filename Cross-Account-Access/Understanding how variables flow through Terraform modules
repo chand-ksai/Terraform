@@ -1,5 +1,4 @@
-how variables flow through Terraform modules is key to writing clean, modular infrastructure code. 
-Let’s walk through the flow step by step using your example:
+Let’s walk through the variable flow through Terraform modules step by step using your example:
 
 ---
 
