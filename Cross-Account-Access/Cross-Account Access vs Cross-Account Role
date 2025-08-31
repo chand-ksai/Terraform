@@ -1,15 +1,18 @@
 ---
 
 ### 🛡️ Cross-Account Access
-This is the **general concept** of allowing one AWS account (Account A) to access resources in another account (Account B). There are two main ways to implement this:
+This is the **general concept** of allowing one AWS account (Account A) to access resources in another account (Account B). 
 
-- **Resource-based policies**: Attach a policy directly to a resource (like an S3 bucket) that specifies which external account or principal can access it.
-- **IAM roles**: Create a role in Account B that Account A can assume, granting temporary access to resources.
+There are two main ways to implement this:
+1. **Resource-based policies**: Attach a policy directly to a resource (like an S3 bucket) that specifies which external account or principal can access it.
+2. **IAM roles**: Create a role in Account B that Account A can assume, granting temporary access to resources.
 
 ---
 
 ### 👥 Cross-Account Role
-This is a **specific implementation** of cross-account access using IAM roles. It involves:
+This is a **specific implementation** of cross-account access using IAM roles. 
+
+It involves:
 
 - Creating a role in Account B with a **trust policy** that allows principals from Account A to assume it.
 - Assigning **permissions** to that role to define what actions it can perform.
