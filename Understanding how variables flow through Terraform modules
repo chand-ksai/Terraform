@@ -1,0 +1,70 @@
+how variables flow through Terraform modules is key to writing clean, modular infrastructure code. 
+Let’s walk through the flow step by step using your example:
+
+---
+
+### 🧩 Step-by-Step Breakdown
+
+#### 1. **Root Module: You Provide the Value**
+In your root module (the main Terraform configuration), you call the module like this:
+
+```hcl
+module "ci_cd_cross_account_role" {
+  source               = "./modules/cross_account_role"
+  role_name            = "ci-cd-deploy-role"
+  ...
+}
+```
+
+Here, you're **passing a value** `"ci-cd-deploy-role"` to the module input variable called `role_name`.
+
+---
+
+#### 2. **Module's `variables.tf`: Declares the Input**
+Inside the module (`modules/cross_account_role/variables.tf`), you declare the variable like this:
+
+```hcl
+variable "role_name" {
+  description = "Name of the IAM role"
+  type        = string
+}
+```
+
+This tells Terraform: “This module expects a string input called `role_name`.”
+
+So now, the module has access to the value `"ci-cd-deploy-role"` via `var.role_name`.
+
+---
+
+#### 3. **Module's `main.tf`: Uses the Value**
+In `main.tf`, you use the variable like this:
+
+```hcl
+resource "aws_iam_role" "cross_account" {
+  name               = var.role_name
+  ...
+}
+```
+
+Here, `var.role_name` is substituted with `"ci-cd-deploy-role"`—the value you passed in the root module. So the IAM role created will be named `ci-cd-deploy-role`.
+
+---
+
+### 🔄 Summary of Flow
+
+| Location         | Purpose                             | Value |
+|------------------|--------------------------------------|-------|
+| Root Module      | Passes value to module               | `"ci-cd-deploy-role"` |
+| Module `variables.tf` | Declares expected input variable | `role_name` |
+| Module `main.tf` | Uses the variable in resource config | `var.role_name` = `"ci-cd-deploy-role"` |
+
+---
+
+### 🧠 Why This Matters
+
+This pattern lets you:
+- Reuse the same module across environments (e.g., dev, staging, prod)
+- Customize behavior without duplicating code
+- Keep your infrastructure DRY and scalable
+
+
