@@ -1,0 +1,83 @@
+how to execute this module for each environment will it creates single state file for all 3 environments are it creates separate state files each environment
+
+
+Excellent question—and it touches on one of the most important aspects of Terraform architecture: **state isolation**.
+
+---
+
+### ✅ Best Practice: Separate State Files per Environment
+
+Each environment (dev, staging, prod) should have its **own Terraform state file**. This ensures:
+
+- 🔒 **Isolation**: Changes in one environment don’t affect others.
+- 🧪 **Safe Testing**: You can experiment in dev without risking prod.
+- 📊 **Clear Auditing**: Easier to track who changed what, where.
+- 🚀 **Parallel Deployments**: You can deploy environments independently.
+
+---
+
+### 🛠️ How to Execute the Module per Environment
+
+Let’s say you have this folder structure:
+
+```
+terraform/
+├── modules/
+│   └── cross_account_role/
+├── envs/
+│   ├── dev/
+│   │   └── main.tf
+│   ├── staging/
+│   │   └── main.tf
+│   └── prod/
+│       └── main.tf
+```
+
+You would run Terraform separately in each environment folder:
+
+#### 🔹 Dev
+```bash
+cd terraform/envs/dev
+terraform init
+terraform apply
+```
+
+#### 🔹 Staging
+```bash
+cd terraform/envs/staging
+terraform init
+terraform apply
+```
+
+#### 🔹 Prod
+```bash
+cd terraform/envs/prod
+terraform init
+terraform apply
+```
+
+Each folder maintains its **own `.terraform` directory and `terraform.tfstate` file**.
+
+---
+
+### ☁️ Optional: Use Remote State (Recommended)
+
+To avoid local state files and enable collaboration, use **remote state backends** like S3 + DynamoDB. Example for `envs/dev/backend.tf`:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket"
+    key            = "dev/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "terraform-locks"
+  }
+}
+```
+
+You’d change the `key` for each environment:
+- `dev/terraform.tfstate`
+- `staging/terraform.tfstate`
+- `prod/terraform.tfstate`
+
+---
