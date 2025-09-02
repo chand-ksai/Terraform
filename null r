@@ -1,0 +1,92 @@
+Awesome — let’s level up your Terraform game by replacing `null_resource` with more modular, event-driven, and cloud-native approaches. Since you're already deep into AWS, Terraform, and automation, here are three powerful alternatives tailored to your workflow:
+
+---
+
+## 🔁 1. Replace with AWS Lambda + EventBridge
+
+Instead of using `null_resource` to run scripts, trigger a Lambda function using [Amazon EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html).
+
+### ✅ Benefits:
+- Fully serverless and scalable
+- Decouples logic from Terraform
+- Easier to monitor and retry
+
+### 🧱 Terraform Example:
+
+```hcl
+resource "aws_lambda_function" "bootstrap" {
+  filename         = "bootstrap.zip"
+  function_name    = "bootstrap-handler"
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "index.handler"
+  runtime          = "python3.9"
+  source_code_hash = filebase64sha256("bootstrap.zip")
+}
+
+resource "aws_cloudwatch_event_rule" "on_deploy" {
+  name        = "trigger-bootstrap"
+  event_pattern = jsonencode({
+    "source": ["aws.ec2"],
+    "detail-type": ["EC2 Instance State-change Notification"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule      = aws_cloudwatch_event_rule.on_deploy.name
+  target_id = "bootstrap"
+  arn       = aws_lambda_function.bootstrap.arn
+}
+```
+
+You can trigger this on EC2 creation, ALB registration, or even custom tags.
+
+---
+
+## 🧩 2. Use `terraform_external` Data Source
+
+For dynamic values or scripts that need to run during plan/apply, use the [`external`](https://developer.hashicorp.com/terraform/docs/language/data-sources/external) data source.
+
+### 🧪 Example:
+
+```hcl
+data "external" "generate_config" {
+  program = ["python3", "${path.module}/scripts/gen_config.py"]
+}
+
+resource "aws_ssm_parameter" "config" {
+  name  = "/app/config"
+  type  = "String"
+  value = data.external.generate_config.result["config"]
+}
+```
+
+This lets you run Python, Bash, or any CLI tool and feed the result directly into Terraform-managed resources.
+
+---
+
+## 🧠 3. Use `terraform_data` (Terraform 1.4+)
+
+If you just need to run provisioners without managing a resource, `terraform_data` is the modern replacement.
+
+```hcl
+resource "terraform_data" "run_script" {
+  provisioner "local-exec" {
+    command = "bash setup.sh"
+  }
+}
+```
+
+Cleaner, more intentional, and better aligned with Terraform’s evolution.
+
+---
+
+## 🧵 Bonus: Modularize with Terragrunt or TF Modules
+
+Instead of embedding logic in `null_resource`, consider:
+- Creating reusable modules for bootstrapping
+- Using Terragrunt hooks (`before_hook`, `after_hook`) for orchestration
+- Leveraging CI/CD pipelines to trigger post-deploy actions
+
+---
+
+Want help converting a specific `null_resource` you’ve used into one of these patterns? Just drop the snippet and I’ll refactor it for you.
