@@ -1,0 +1,48 @@
+The `null_resource` in Terraform is a special type of resource that **doesn’t manage any real infrastructure** — but it’s incredibly useful for executing arbitrary actions like scripts, commands, or provisioners during your Terraform runs.
+
+---
+
+### 🧩 What Is `null_resource`?
+
+- It follows the **standard resource lifecycle** (`create`, `update`, `destroy`) but doesn’t provision anything.
+- Commonly used to run **local-exec** or **remote-exec** provisioners.
+- Acts as a **placeholder** for tasks that don’t map to a cloud resource (e.g., bootstrapping, file generation, notifications).
+
+---
+
+### 🛠️ Example Usage
+
+```hcl
+resource "null_resource" "example" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = "echo 'Running setup script...'"
+  }
+}
+```
+
+- `triggers`: A map of values that, when changed, force the resource to re-run.
+- `timestamp()`: Ensures the resource runs every time you apply.
+
+---
+
+### 🔄 When to Use It
+
+- Bootstrapping EC2 clusters after creation.
+- Running shell scripts or Ansible playbooks.
+- Copying files or generating configs.
+- Triggering external APIs or notifications.
+
+---
+
+### 🚨 Heads-Up
+
+- As of Terraform **1.4+**, HashiCorp recommends using [`terraform_data`](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) instead for most use cases.
+- `null_resource` can be fragile in large-scale automation — especially if triggers aren’t well-defined.
+
+---
+
+Want help refactoring a `null_resource` into a more modular or event-driven approach using Lambda, EventBridge, or Terraform `external` data sources? I can walk you through that too.
