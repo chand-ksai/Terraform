@@ -21,7 +21,7 @@ variable "private_subnet_id-ec2-mod" {
 variable "instance_type-ec2-mod" {
   description = "EC2 instance type to use for both instances"
   type        = string
-  default     = "t3.micro"
+  default     = "t2.micro"
 }
 
 variable "ami_id-ec2-mod" {
