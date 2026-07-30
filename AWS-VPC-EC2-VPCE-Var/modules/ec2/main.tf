@@ -24,7 +24,8 @@ data "aws_ssm_parameter" "al2023_ami" {
 }
 
 locals {
-  ami_id-ec2-mod = coalesce(var.ami_id-ec2-mod, try(data.aws_ssm_parameter.al2023_ami, null))
+  ami_id-ec2-mod = coalesce(var.ami_id-ec2-mod, try(data.aws_ssm_parameter.al2023_ami.value, null))
+
 
   # Installs git and docker, enables and starts the docker service,
   # and adds ec2-user to the docker group. The SSM Agent is already
