@@ -23,3 +23,15 @@ variable "tags-vpce-mod" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_ecr_endpoints-vpce-mod" {
+  description = "Whether to create the ECR (api + dkr) interface endpoints and the S3 gateway endpoint required for image layer pulls"
+  type        = bool
+  default     = true
+}
+
+variable "route_table_ids-vpce-mod" {
+  description = "Route table IDs (from the vpc module) to associate with the S3 gateway endpoint. Required when enable_ecr_endpoints-vpce-mod is true"
+  type        = list(string)
+  default     = []
+}

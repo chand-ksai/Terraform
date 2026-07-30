@@ -3,28 +3,24 @@
 # the SSM Agent preinstalled). Used unless an
 # explicit ami_id-ec2-mod is supplied.
 ############################################
-#data "aws_ami" "amazon_linux_2023" {
-#  count       = var.ami_id-ec2-mod == null ? 1 : 0
-#  most_recent = true
-#  owners      = ["amazon"]
-#
-#  filter {
-#		name   = "name"
-#		values = ["al2023-ami-*-x86_64"]
-#	  }
-#
-#	  filter {
-#		name   = "virtualization-type"
-#		values = ["hvm"]
-#	  }
-#}
+data "aws_ami" "amazon_linux_2023" {
+  count       = var.ami_id-ec2-mod == null ? 1 : 0
+  most_recent = true
+  owners      = ["amazon"]
 
-data "aws_ssm_parameter" "amazon_linux_2023" {
-  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 locals {
-  ami_id-ec2-mod = coalesce(var.ami_id-ec2-mod, try(data.aws_ssm_parameter.amazon_linux_2023.value, null))
+  ami_id-ec2-mod = coalesce(var.ami_id-ec2-mod, try(data.aws_ami.amazon_linux_2023[0].id, null))
 
   # Installs git and docker, enables and starts the docker service,
   # and adds ec2-user to the docker group. The SSM Agent is already
@@ -106,7 +102,7 @@ resource "aws_instance" "public" {
   subnet_id                   = var.public_subnet_id-ec2-mod
   vpc_security_group_ids      = [aws_security_group.ec2.id]
   iam_instance_profile        = aws_iam_instance_profile.ssm_profile.name
-  associate_public_ip_address = true
+  associate_public_ip_on_launch = true
   user_data                   = local.user_data-ec2-mod
 
   tags = merge(

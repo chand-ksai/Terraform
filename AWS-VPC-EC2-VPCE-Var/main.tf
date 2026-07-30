@@ -16,11 +16,27 @@ module "vpc" {
 module "vpc_endpoints" {
   source = "./modules/vpc_endpoints"
 
-  name_prefix-vpce-mod        = var.name_prefix-root-mod
-  vpc_id-vpce-mod             = module.vpc.child-mod-op-child-mod-vpc-op
-  vpc_cidr-vpce-mod           = module.vpc.vpc_cidr_block-child-mod-vpc-op
-  private_subnet_ids-vpce-mod = module.vpc.private_subnet_ids-child-mod-vpc-op
-  tags-vpce-mod               = var.tags-root-mod
+  name_prefix-vpce-mod           = var.name_prefix-root-mod
+  vpc_id-vpce-mod                = module.vpc.child-mod-op-child-mod-vpc-op
+  vpc_cidr-vpce-mod              = module.vpc.vpc_cidr_block-child-mod-vpc-op
+  private_subnet_ids-vpce-mod    = module.vpc.private_subnet_ids-child-mod-vpc-op
+  tags-vpce-mod                  = var.tags-root-mod
+  enable_ecr_endpoints-vpce-mod  = var.enable_ecr_endpoints-root-mod
+  route_table_ids-vpce-mod = [
+    module.vpc.public_route_table_id-child-mod-vpc-op,
+    module.vpc.default_route_table_id-child-mod-vpc-op,
+  ]
+}
+
+############################################
+# ECR repository for application images
+############################################
+module "ecr" {
+  source = "./modules/ecr"
+
+  name_prefix-ecr-mod     = var.name_prefix-root-mod
+  repository_name-ecr-mod = var.ecr_repository_name-root-mod
+  tags-ecr-mod            = var.tags-root-mod
 }
 
 ############################################

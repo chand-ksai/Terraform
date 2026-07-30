@@ -48,3 +48,15 @@ variable "tags-root-mod" {
     Managed = "terraform"
   }
 }
+
+variable "ecr_repository_name-root-mod" {
+  description = "Name of the ECR repository (will be prefixed with name_prefix-root-mod)"
+  type        = string
+  default     = "app"
+}
+
+variable "enable_ecr_endpoints-root-mod" {
+  description = "Whether to create ECR (api + dkr) interface endpoints and the S3 gateway endpoint, so private-subnet instances can pull images without internet access"
+  type        = bool
+  default     = true
+}

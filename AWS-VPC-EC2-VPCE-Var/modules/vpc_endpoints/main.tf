@@ -80,3 +80,57 @@ resource "aws_vpc_endpoint" "ec2messages" {
     { Name = "${var.name_prefix-vpce-mod}-vpce-ec2messages" }
   )
 }
+
+############################################
+# Interface Endpoints required for ECR to
+# work from private subnets without internet
+# access:
+#   - ecr.api : image/repo management API calls
+#   - ecr.dkr : actual docker pull/push traffic
+# Plus an S3 Gateway Endpoint, since ecr.dkr
+# stores/serves image layers via S3 and a
+# private subnet with no NAT/IGW otherwise
+# can't reach it.
+############################################
+resource "aws_vpc_endpoint" "ecr_api" {
+  count               = var.enable_ecr_endpoints-vpce-mod ? 1 : 0
+  vpc_id              = var.vpc_id-vpce-mod
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = var.private_subnet_ids-vpce-mod
+  security_group_ids  = [aws_security_group.endpoints.id]
+  private_dns_enabled = true
+
+  tags = merge(
+    var.tags-vpce-mod,
+    { Name = "${var.name_prefix-vpce-mod}-vpce-ecr-api" }
+  )
+}
+
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  count               = var.enable_ecr_endpoints-vpce-mod ? 1 : 0
+  vpc_id              = var.vpc_id-vpce-mod
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = var.private_subnet_ids-vpce-mod
+  security_group_ids  = [aws_security_group.endpoints.id]
+  private_dns_enabled = true
+
+  tags = merge(
+    var.tags-vpce-mod,
+    { Name = "${var.name_prefix-vpce-mod}-vpce-ecr-dkr" }
+  )
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  count             = var.enable_ecr_endpoints-vpce-mod ? 1 : 0
+  vpc_id            = var.vpc_id-vpce-mod
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = var.route_table_ids-vpce-mod
+
+  tags = merge(
+    var.tags-vpce-mod,
+    { Name = "${var.name_prefix-vpce-mod}-vpce-s3" }
+  )
+}

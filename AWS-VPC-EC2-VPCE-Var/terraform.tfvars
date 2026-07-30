@@ -9,6 +9,9 @@ private_subnet_cidrs-root-mod = ["10.0.3.0/24", "10.0.4.0/24"]
 
 instance_type-root-mod = "t3.micro"
 
+ecr_repository_name-root-mod  = "app"
+enable_ecr_endpoints-root-mod = true
+
 tags-root-mod = {
   Project     = "AWS-VPC"
   Environment = "default"

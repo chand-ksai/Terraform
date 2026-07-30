@@ -78,3 +78,31 @@ output "ec2messages_vpc_endpoint_id" {
   description = "ID of the EC2 Messages interface VPC endpoint"
   value       = module.vpc_endpoints.ec2messages_endpoint_id-child-mod-vpc_endpoints-op
 }
+
+output "ecr_api_vpc_endpoint_id" {
+  description = "ID of the ECR API interface VPC endpoint"
+  value       = module.vpc_endpoints.ecr_api_endpoint_id-child-mod-vpc_endpoints-op
+}
+
+output "ecr_dkr_vpc_endpoint_id" {
+  description = "ID of the ECR Docker Registry interface VPC endpoint"
+  value       = module.vpc_endpoints.ecr_dkr_endpoint_id-child-mod-vpc_endpoints-op
+}
+
+output "s3_vpc_endpoint_id" {
+  description = "ID of the S3 gateway VPC endpoint (used for ECR image layer pulls)"
+  value       = module.vpc_endpoints.s3_endpoint_id-child-mod-vpc_endpoints-op
+}
+
+############################################
+# ECR outputs
+############################################
+output "ecr_repository_url" {
+  description = "URL of the ECR repository (used for docker push/pull)"
+  value       = module.ecr.repository_url-child-mod-ecr-op
+}
+
+output "ecr_repository_arn" {
+  description = "ARN of the ECR repository"
+  value       = module.ecr.repository_arn-child-mod-ecr-op
+}
