@@ -3,29 +3,12 @@
 # the SSM Agent preinstalled). Used unless an
 # explicit ami_id-ec2-mod is supplied.
 ############################################
-#data "aws_ami" "amazon_linux_2023" {
-#  count       = var.ami_id-ec2-mod == null ? 1 : 0
-#  most_recent = true
-#  owners      = ["amazon"]
-#
-#  filter {
-#    name   = "name"
-#    values = ["al2023-ami-*-x86_64"]
-#  }
-#
-#  filter {
-#    name   = "virtualization-type"
-#    values = ["hvm"]
-#  }
-#}
-
 data "aws_ssm_parameter" "al2023_ami" {
   name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 }
 
 locals {
   ami_id-ec2-mod = coalesce(var.ami_id-ec2-mod, try(data.aws_ssm_parameter.al2023_ami.value, null))
-
 
   # Installs git and docker, enables and starts the docker service,
   # and adds ec2-user to the docker group. The SSM Agent is already
@@ -67,6 +50,17 @@ resource "aws_iam_role" "ssm_role" {
 resource "aws_iam_role_policy_attachment" "ssm_core" {
   role       = aws_iam_role.ssm_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+############################################
+# Grants the EC2 instances permission to
+# push/pull Docker images to/from ECR
+# (docker is installed via user_data above)
+############################################
+resource "aws_iam_role_policy_attachment" "ecr_power_user" {
+  count      = var.enable_ecr_push_policy-ec2-mod ? 1 : 0
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
 resource "aws_iam_instance_profile" "ssm_profile" {

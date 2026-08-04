@@ -3,13 +3,19 @@ variable "name_prefix-ecr-mod" {
   type        = string
 }
 
-variable "repository_name-ecr-mod" {
-  description = "Name of the ECR repository (will be prefixed with name_prefix-ecr-mod)"
-  type        = string
+variable "repository_names-ecr-mod" {
+  description = "Names of the ECR repositories to create (each is prefixed with name_prefix-ecr-mod). Must be lowercase per ECR naming rules"
+  type        = list(string)
+  default     = ["app", "reports", "db"]
+
+  validation {
+    condition     = alltrue([for n in var.repository_names-ecr-mod : n == lower(n)])
+    error_message = "repository_names-ecr-mod entries must be lowercase (ECR repository names cannot contain uppercase characters)."
+  }
 }
 
 variable "image_tag_mutability-ecr-mod" {
-  description = "Whether image tags can be overwritten (MUTABLE or IMMUTABLE)"
+  description = "Whether image tags can be overwritten (MUTABLE or IMMUTABLE). Applies to all repositories"
   type        = string
   default     = "IMMUTABLE"
 
@@ -20,13 +26,13 @@ variable "image_tag_mutability-ecr-mod" {
 }
 
 variable "scan_on_push-ecr-mod" {
-  description = "Whether images are scanned for vulnerabilities on push"
+  description = "Whether images are scanned for vulnerabilities on push. Applies to all repositories"
   type        = bool
   default     = true
 }
 
 variable "encryption_type-ecr-mod" {
-  description = "Encryption type for the repository (AES256 or KMS)"
+  description = "Encryption type for the repositories (AES256 or KMS)"
   type        = string
   default     = "AES256"
 
@@ -43,13 +49,13 @@ variable "kms_key_arn-ecr-mod" {
 }
 
 variable "force_delete-ecr-mod" {
-  description = "Whether to delete the repository even if it still contains images (useful for dev/test)"
+  description = "Whether to delete a repository even if it still contains images (useful for dev/test)"
   type        = bool
   default     = false
 }
 
 variable "enable_lifecycle_policy-ecr-mod" {
-  description = "Whether to attach a lifecycle policy that expires old/untagged images"
+  description = "Whether to attach a lifecycle policy that expires old/untagged images. Applies to all repositories"
   type        = bool
   default     = true
 }
@@ -61,15 +67,30 @@ variable "untagged_image_expiry_days-ecr-mod" {
 }
 
 variable "max_image_count-ecr-mod" {
-  description = "Maximum number of tagged images (prefix \"v\") to retain; older ones are expired by the lifecycle policy"
+  description = "Maximum number of tagged images (prefix \"v\") to retain per repository; older ones are expired by the lifecycle policy"
   type        = number
   default     = 10
 }
 
 variable "pull_principal_arns-ecr-mod" {
-  description = "IAM principal ARNs (roles/users/accounts) granted pull access via a repository policy. Leave empty to skip creating a policy"
+  description = "IAM principal ARNs (roles/users/accounts) granted pull access via a repository policy, applied to every repository. Leave empty to skip creating repository policies"
   type        = list(string)
   default     = []
+}
+
+############################################
+# ECS cluster IAM role
+############################################
+variable "create_ecs_cluster_role-ecr-mod" {
+  description = "Whether to create the IAM role (+ instance profile) used by EC2 container instances registering with an ECS cluster"
+  type        = bool
+  default     = true
+}
+
+variable "ecs_cluster_role_name-ecr-mod" {
+  description = "Name suffix for the ECS cluster role (prefixed with name_prefix-ecr-mod)"
+  type        = string
+  default     = "ecs-cluster-role"
 }
 
 variable "tags-ecr-mod" {

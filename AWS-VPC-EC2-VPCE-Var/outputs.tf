@@ -97,12 +97,25 @@ output "s3_vpc_endpoint_id" {
 ############################################
 # ECR outputs
 ############################################
-output "ecr_repository_url" {
-  description = "URL of the ECR repository (used for docker push/pull)"
-  value       = module.ecr.repository_url-child-mod-ecr-op
+output "ecr_repository_urls" {
+  description = "Map of repository name (app/reports/db) to repository URL (used for docker push/pull)"
+  value       = module.ecr.repository_urls-child-mod-ecr-op
 }
 
-output "ecr_repository_arn" {
-  description = "ARN of the ECR repository"
-  value       = module.ecr.repository_arn-child-mod-ecr-op
+output "ecr_repository_arns" {
+  description = "Map of repository name to repository ARN"
+  value       = module.ecr.repository_arns-child-mod-ecr-op
+}
+
+############################################
+# ECS cluster role outputs
+############################################
+output "ecs_cluster_role_arn" {
+  description = "ARN of the IAM role used by EC2 container instances joining the ECS cluster"
+  value       = module.ecr.ecs_cluster_role_arn-child-mod-ecr-op
+}
+
+output "ecs_cluster_instance_profile_name" {
+  description = "Name of the instance profile for the ECS cluster role"
+  value       = module.ecr.ecs_cluster_instance_profile_name-child-mod-ecr-op
 }

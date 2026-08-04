@@ -11,7 +11,6 @@ terraform {
 
 provider "aws" {
   region = var.aws_region-root-mod
-  profile = "ACG"
 
   # Credentials are picked up from the standard AWS provider chain:
   # environment variables (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY),

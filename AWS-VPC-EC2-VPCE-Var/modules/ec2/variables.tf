@@ -35,3 +35,9 @@ variable "tags-ec2-mod" {
   type        = map(string)
   default     = {}
 }
+
+variable "enable_ecr_push_policy-ec2-mod" {
+  description = "Whether to attach the AmazonEC2ContainerRegistryPowerUser managed policy to the EC2 SSM role, granting permission to push/pull Docker images to/from ECR"
+  type        = bool
+  default     = true
+}

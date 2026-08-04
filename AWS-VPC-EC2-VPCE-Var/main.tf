@@ -29,14 +29,16 @@ module "vpc_endpoints" {
 }
 
 ############################################
-# ECR repository for application images
+# ECR repositories (app, reports, db) +
+# ECS cluster IAM role
 ############################################
 module "ecr" {
   source = "./modules/ecr"
 
-  name_prefix-ecr-mod     = var.name_prefix-root-mod
-  repository_name-ecr-mod = var.ecr_repository_name-root-mod
-  tags-ecr-mod            = var.tags-root-mod
+  name_prefix-ecr-mod             = var.name_prefix-root-mod
+  repository_names-ecr-mod        = var.ecr_repository_names-root-mod
+  create_ecs_cluster_role-ecr-mod = var.create_ecs_cluster_role-root-mod
+  tags-ecr-mod                    = var.tags-root-mod
 }
 
 ############################################
@@ -46,12 +48,13 @@ module "ecr" {
 module "ec2" {
   source = "./modules/ec2"
 
-  name_prefix-ec2-mod       = var.name_prefix-root-mod
-  vpc_id-ec2-mod            = module.vpc.child-mod-op-child-mod-vpc-op
-  public_subnet_id-ec2-mod  = module.vpc.public_subnet_ids-child-mod-vpc-op[0]
-  private_subnet_id-ec2-mod = module.vpc.private_subnet_ids-child-mod-vpc-op[0]
-  instance_type-ec2-mod     = var.instance_type-root-mod
-  tags-ec2-mod              = var.tags-root-mod
+  name_prefix-ec2-mod            = var.name_prefix-root-mod
+  vpc_id-ec2-mod                 = module.vpc.child-mod-op-child-mod-vpc-op
+  public_subnet_id-ec2-mod       = module.vpc.public_subnet_ids-child-mod-vpc-op[0]
+  private_subnet_id-ec2-mod      = module.vpc.private_subnet_ids-child-mod-vpc-op[0]
+  instance_type-ec2-mod          = var.instance_type-root-mod
+  enable_ecr_push_policy-ec2-mod = var.enable_ecr_push_policy-root-mod
+  tags-ec2-mod                   = var.tags-root-mod
 
   depends_on = [module.vpc_endpoints]
 }

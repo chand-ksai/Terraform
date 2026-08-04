@@ -9,8 +9,10 @@ private_subnet_cidrs-root-mod = ["10.0.3.0/24", "10.0.4.0/24"]
 
 instance_type-root-mod = "t3.micro"
 
-ecr_repository_name-root-mod  = "app"
-enable_ecr_endpoints-root-mod = true
+ecr_repository_names-root-mod   = ["app", "reports", "db"]
+enable_ecr_endpoints-root-mod   = true
+create_ecs_cluster_role-root-mod = true
+enable_ecr_push_policy-root-mod  = true
 
 tags-root-mod = {
   Project     = "AWS-VPC"
